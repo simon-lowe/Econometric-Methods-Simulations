@@ -18,8 +18,10 @@ rm(list.of.packages, new.packages)
 # Parameters --------------------------------------------------------------
 
 p <- list()
-p$nk = 30  # firm types
-p$nl = 10  # worker types
+# p$nk = 30  # firm types
+p$nk = 4  # firm types
+# p$nl = 10  # worker types
+p$nl = 2  # worker types
 
 p$alpha_sd = 1
 p$psi_sd   = 1
@@ -31,14 +33,14 @@ p$alpha = with(p, qnorm(1:nl/(nl+1)) * alpha_sd)
 # let's assume moving probability is fixed
 p$lambda = 0.05
 
-p$csort = 0.5 # sorting effect
-p$cnetw = 0.2 # network effect
+p$csort = 0 # 0.5 # sorting effect
+p$cnetw = 0 # 0.2 # network effect
 p$csig  = 0.1 # unobserved variance of transition probability beyond FEs
 
 p$w_sigma = 0.8 # wage variance
 
-p$nt = 5 # Number of time periods
-p$ni = 130000 # Number of individuals
+p$nt = 10 # Number of time periods
+p$ni = 1000 # Number of individuals
 # p$ni = 300000 # Number of individuals
 
 p$auto_rho <- 0.1
@@ -53,13 +55,13 @@ set.seed(12345)
 # G[i,j,k] = Pr[worker i, at firm j, moves to firm k]
 
 getG <- function(p){
-  G = with(p,array(0,c(nl,nk,nk)))
-  for (l in 1:p$nl) for (k in 1:p$nk) {
+  G = with(p, array(0, c(nl, nk, nk)))
+  for (l in 1:p$nl) for (j in 1:p$nk) {
     # prob of moving is highest if dnorm(0)
-    G[l,k,] = with(p, dnorm(psi - cnetw*psi[k] - csort*alpha[l], sd = csig))
+    G[l, j,] = with(p, dnorm(psi - cnetw*psi[j] - csort*alpha[l], sd = csig))
     # normalize to get transition matrix
-    G[l,k,] = G[l,k,]/sum(G[l,k,])
-  } 
+    G[l, j,] = G[l, j,]/sum(G[l, j,])
+  }
   return(G)
 }
 G <- getG(p)
@@ -82,7 +84,7 @@ Plot1 = wireframe(G[1,,],aspect = c(1,1),xlab = "previous firm",ylab="next firm"
 Plot2 = wireframe(G[p$nl,,],aspect = c(1,1),xlab = "previous firm",ylab="next firm")
 grid.arrange(Plot1, Plot2,nrow=1)
 
-wireframe(H,aspect = c(1,1), xlab = "worker", ylab="firm")
+wireframe(H,aspect = c(1,1), xlab = "worker", ylab = "firm")
 
 
 # Simulate the network ----------------------------------------------------
@@ -96,7 +98,7 @@ sim <- function(p,G,H){
   
   for(i in 1:p$ni) {
     # we draw the worker type
-    l = sample.int(p$nl,1)
+    l = sample.int(p$nl, 1)
     A[i] = l
     # at time 1, we draw from H
     network[i,1] = sample.int(p$nk, 1, prob = H[l,]) # We draw firm type for individual i from given the stat dist for her type

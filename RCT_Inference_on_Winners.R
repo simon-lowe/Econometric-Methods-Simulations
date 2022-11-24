@@ -12,6 +12,7 @@ n_MC <- 1000
 
 res_fin <- NULL
 res_fin2 <- NULL
+res_fin3 <- NULL
 
 
 
@@ -22,10 +23,10 @@ t_eff <- 1
 for(i in 1:n_MC){
   
   res_arm <- c()
-  for(i in 1:n_arms){
+  for(k in 1:n_arms){
     dat <- data.frame(
       Y0 = rnorm(n_size_arm, 0, 1),
-      Y1 = rnorm(n_size_arm, ifelse(i == 1, t_eff, 0), 1)
+      Y1 = rnorm(n_size_arm, ifelse(k == 1, t_eff, 0), 1)
     ) %>%
       mutate(
         # z = rbinom(n(), 1, 0.5),
@@ -35,14 +36,20 @@ for(i in 1:n_MC){
       summarise(mean(y[z == 1] - y[z == 0]))
     res_arm <- c(res_arm, dat[[1]])
   }
-  
+  if(i == 1){
+    r <- which.max(res_arm)
+  }
   res_fin <- c(res_fin, max(res_arm))
-  res_fin2 <- c(res_fin2, res_arm[1])
+  res_fin2 <- c(res_fin2, res_arm[r])
+  if(which.max(res_arm) == 1){
+    res_fin3 <- c(res_fin3, res_arm[1])
+  }
 }
 
 
 mean(res_fin, na.rm = T)
 mean(res_fin2, na.rm = T)
+mean(res_fin3, na.rm = T)
 
 
 # Inference on the chosen one ---------------------------------------------

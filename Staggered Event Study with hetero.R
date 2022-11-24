@@ -132,9 +132,12 @@ run_ES_DiD <- function(aux, nobs, nstates) {
            Post = ifelse(rel_year > 5, 1, 0))
   
   # estimate the model
-  mod <- lfe::felm(dep_var ~ Pre + `rel_year_-5` + `rel_year_-4` + `rel_year_-3` + `rel_year_-2` + 
-                     `rel_year_0` + `rel_year_1` + `rel_year_2` + `rel_year_3` + `rel_year_4` + 
+  mod <- lfe::felm(dep_var ~ Pre + `rel_year_-5` + `rel_year_-4` + `rel_year_-3` + `rel_year_-2` +
+                     `rel_year_0` + `rel_year_1` + `rel_year_2` + `rel_year_3` + `rel_year_4` +
                      `rel_year_5` + Post | unit + year | 0 | state, data = data, exactDOF = TRUE)
+  # mod <- lfe::felm(dep_var ~  `rel_year_-5` + `rel_year_-4` + `rel_year_-3` + `rel_year_-2` + 
+  #                    `rel_year_0` + `rel_year_1` + `rel_year_2` + `rel_year_3` + `rel_year_4` + 
+  #                    `rel_year_5` | unit + year | 0 | state, data = data, exactDOF = TRUE)
   
   # grab the obs we need
   mod2 <- tibble(
@@ -914,7 +917,7 @@ ES_plot_sat_never_het <- data_sat_never_het %>%
   theme(axis.title = element_text(size = 14),
         axis.text = element_text(size = 12))+
   ggtitle("TWFE event-study regression with 'all' leads and lags")+
-  scale_color_manual(values = colors) + 
+  # scale_color_manual(values = colors) + 
   theme(plot.title = element_text(hjust = 0.5, size=12),
         legend.position = "bottom", 
         legend.title = element_blank())
